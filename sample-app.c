@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "libpq-fe.h"
 
 #define HOST "127.0.0.1"
@@ -10,79 +11,141 @@
 
 #define CONN_STR "host=" HOST " port=" PORT " dbname=" DB_NAME " user=" USER " password=" PASSWORD
 
-int main(int argc, char **argv)
-{
-  const char *conninfo;
-  PGconn     *conn;
-  PGresult   *res;
-  int         nFields;
-  int         i, j;
+PGconn* connect();
+void createDatabase(PGconn *conn);
+void selectAccounts(PGconn *conn);
+void printErrorAndExit(PGconn *conn, PGresult *res);
+void transferMoneyBetweenAccounts(PGconn *conn);
 
-  /* Make a connection to the database */
-  conn = PQconnectdb(CONN_STR);
+int main(int argc, char **argv) {
+    PGconn  *conn;
 
-  /* Check to see that the backend connection was successfully made */
-  if (PQstatus(conn) != CONNECTION_OK)
-  {
-      fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(conn));
+    conn = connect();
+    createDatabase(conn);
+    selectAccounts(conn);
+    transferMoneyBetweenAccounts(conn);
+    selectAccounts(conn);
+    
+    PQfinish(conn);
 
-      PQfinish(conn);
-      exit(1);
-  }
-
-  /* Create table */
-  res = PQexec(conn, "CREATE TABLE employee (id int PRIMARY KEY, \
-                                             name varchar, age int, \
-                                             language varchar)");
-
-  if (PQresultStatus(res) != PGRES_COMMAND_OK)
-  {
-      fprintf(stderr, "CREATE TABLE failed: %s", PQerrorMessage(conn));
-      PQclear(res);
-      PQfinish(conn);
-      exit(1);
-  }
-  PQclear(res);
-  printf("Created table employee\n");
-
-  /* Insert a row */
-  res = PQexec(conn, "INSERT INTO employee (id, name, age, language) \
-                      VALUES (1, 'John', 35, 'C')");
-
-  if (PQresultStatus(res) != PGRES_COMMAND_OK)
-  {
-      fprintf(stderr, "INSERT failed: %s", PQerrorMessage(conn));
-      PQclear(res);
-      PQfinish(conn);
-      exit(1);
-  }
-  PQclear(res);
-  printf("Inserted data (1, 'John', 35, 'C')\n");
-
-
-  /* Query the row */
-  res = PQexec(conn, "SELECT name, age, language FROM employee WHERE id = 1");
-  if (PQresultStatus(res) != PGRES_TUPLES_OK)
-  {
-      fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
-      PQclear(res);
-      PQfinish(conn);
-      exit(1);
-  }
-
-  /* print out the rows */
-  nFields = PQnfields(res);
-  for (i = 0; i < PQntuples(res); i++)
-  {
-      printf("Query returned: ");
-      for (j = 0; j < nFields; j++)
-        printf("%s ", PQgetvalue(res, i, j));
-      printf("\n");
-  }
-  PQclear(res);
-
-  /* close the connection to the database and cleanup */
-  PQfinish(conn);
-
-  return 0;
+    return 0;
 }
+
+PGconn* connect() {
+    PGconn *conn;
+
+    printf(">>>> Connecting to YugabyteDB!\n");
+
+    conn = PQconnectdb(CONN_STR);
+
+    if (PQstatus(conn) != CONNECTION_OK) {
+        printErrorAndExit(conn, NULL);
+    }
+
+    printf(">>>> Successfully connected to YugabyteDB!\n");
+
+    return conn;
+}
+
+void createDatabase(PGconn *conn) {
+    PGresult *res;
+
+    res = PQexec(conn, "DROP TABLE IF EXISTS DemoAccount");
+
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        printErrorAndExit(conn, res);
+    }
+
+    res = PQexec(conn, "CREATE TABLE DemoAccount ( \
+                        id int PRIMARY KEY, \
+                        name varchar, \
+                        age int, \
+                        country varchar, \
+                        balance int)");
+    
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        printErrorAndExit(conn, res);
+    }
+
+    res = PQexec(conn, "INSERT INTO DemoAccount VALUES \
+                        (1, 'Jessica', 28, 'USA', 10000), \
+                        (2, 'John', 28, 'Canada', 9000)");
+
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        printErrorAndExit(conn, res);
+    }
+
+    PQclear(res);
+
+    printf(">>>> Successfully created table DemoAccount.\n");
+}
+
+void selectAccounts(PGconn *conn) {
+    PGresult *res;
+    int i;
+
+    printf(">>>> Selecting accounts:\n");
+
+    res = PQexec(conn, "SELECT name, age, country, balance FROM DemoAccount");
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        printErrorAndExit(conn, res);
+    }
+    
+    for (i = 0; i < PQntuples(res); i++) {
+      printf("name = %s, age = %s, country = %s, balance = %s\n", 
+          PQgetvalue(res, i, 0), PQgetvalue(res, i, 1), PQgetvalue(res, i, 2), PQgetvalue(res, i, 3));
+    }
+
+    PQclear(res);
+}
+
+void transferMoneyBetweenAccounts(PGconn *conn) {
+    PGresult *res;
+
+    res = PQexec(conn, "BEGIN TRANSACTION");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        printErrorAndExit(conn, res);
+    }
+
+    res = PQexec(conn, "UPDATE DemoAccount SET balance = balance - 800 WHERE name = \'Jessica\'");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        printErrorAndExit(conn, res);
+    }
+
+    res = PQexec(conn, "UPDATE DemoAccount SET balance = balance + 800 WHERE name = \'John\'");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        printErrorAndExit(conn, res);
+    }
+
+    res = PQexec(conn, "COMMIT");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        printErrorAndExit(conn, res);
+    }
+
+    PQclear(res);
+
+    printf(">>>> Transferred 800 between accounts\n");
+}
+
+void printErrorAndExit(PGconn *conn, PGresult *res) {
+    char *errCode;
+
+    if (res) {
+        errCode = PQresultErrorField(res, PG_DIAG_SQLSTATE);
+
+        // Applies to logic of the transferMoneyBetweenAccounts method
+        if (errCode && strcmp(errCode, "40001")) {
+            printf("The operation is aborted due to a concurrent transaction that is modifying the same set of rows. \
+                    Consider adding retry logic for production-grade applications.\n");
+        }
+
+        PQclear(res);
+    }
+
+    fprintf(stderr, "%s", PQerrorMessage(conn));
+
+    PQfinish(conn);
+    exit(1);
+}
+
