@@ -3,13 +3,17 @@
 #include <string.h>
 #include "libpq-fe.h"
 
-#define HOST "127.0.0.1"
+#define HOST ""
 #define PORT "5433"
 #define DB_NAME "yugabyte"
-#define USER "yugabyte"
-#define PASSWORD "yugabyte"
+#define USER ""
+#define PASSWORD ""
+#define SSL_MODE ""
+#define SSL_ROOT_CERT ""
 
-#define CONN_STR "host=" HOST " port=" PORT " dbname=" DB_NAME " user=" USER " password=" PASSWORD
+#define CONN_STR "host=" HOST " port=" PORT " dbname=" DB_NAME \
+                 " user=" USER " password=" PASSWORD \
+                 " sslmode=" SSL_MODE " sslrootcert=" SSL_ROOT_CERT
 
 PGconn* connect();
 void createDatabase(PGconn *conn);
@@ -36,6 +40,8 @@ PGconn* connect() {
 
     printf(">>>> Connecting to YugabyteDB!\n");
 
+    PQinitSSL(1);
+    
     conn = PQconnectdb(CONN_STR);
 
     if (PQstatus(conn) != CONNECTION_OK) {
