@@ -9,6 +9,7 @@ If you use a different type of deployment, then update the `sample-app.c` file w
 
 * A 32-bit (x86) or 64-bit (x64) architecture machine. Use [Rosetta](https://support.apple.com/en-us/HT211861) to build and run on the Apple silicon.
 * gcc 4.1.2 or later, clang 3.4 or later installed.
+* OpenSSL library (used by libpq to establish secured SSL connections).
 * Command line tool or your favourite IDE, such as Visual Studio Code.
 
 ## Start Yugabyte Cloud Cluster
