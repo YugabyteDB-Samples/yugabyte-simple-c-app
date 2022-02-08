@@ -27,12 +27,11 @@ git clone https://github.com/yugabyte/yugabyte-simple-c-app && cd yugabyte-simpl
 
 ## Provide Yugabyte Cloud Connection Parameters
 
-Open the `sample-app.c` file and edit the following configuration parameters:
-* `host` - the hostname of your Yugabyte Cloud instance.
-* `port` - the port number of the instance (the default is `5433`).
-* `user` - the username for your instance.
-* `password` - the database password.
-* `ssl.ca` - a full path to your CA root cert (for example, `/Users/dmagda/certificates/root.crt`). 
+Locate and define the following configuration-related macros in the `sample-app.c` file:
+* `HOST` - the hostname of your Yugabyte Cloud instance.
+* `USER` - the username for your instance.
+* `PASSWORD` - the database password.
+* `SSL_ROOT_CERT` - a full path to your CA root cert (for example, `/Users/dmagda/certificates/root.crt`). 
 
 Note, you can easily find all the settings on the Yugabyte Cloud dashboard:
 
@@ -40,11 +39,13 @@ Note, you can easily find all the settings on the Yugabyte Cloud dashboard:
 
 ## Run the Application
 
-1. Download and install the [libpq](https://www.postgresql.org/download/) driver.
+1. Install the libpq driver via [Homebrew package manager](https://formulae.brew.sh/formula/libpq) or using a [different method](https://www.postgresql.org/download/).
     
 2. Compile the application with `gcc` or `clang`:
     ```bash
-    gcc sample-app.c -o sample-app -I/usr/local/opt/libpq/include -L/usr/local/opt/libpq/lib -lpq
+    gcc sample-app.c -o sample-app \ 
+    -I/usr/local/opt/libpq/include \ 
+    -L/usr/local/opt/libpq/lib -lpq
     ```
 3. Run the application:
     ```bash

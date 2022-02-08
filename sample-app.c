@@ -8,7 +8,7 @@
 #define DB_NAME "yugabyte"
 #define USER ""
 #define PASSWORD ""
-#define SSL_MODE ""
+#define SSL_MODE "verify-full"
 #define SSL_ROOT_CERT ""
 
 #define CONN_STR "host=" HOST " port=" PORT " dbname=" DB_NAME \
