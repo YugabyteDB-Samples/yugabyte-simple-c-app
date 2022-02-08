@@ -41,11 +41,9 @@ Note, you can easily find all the settings on the Yugabyte Cloud dashboard:
 
 1. Install the libpq driver via [Homebrew package manager](https://formulae.brew.sh/formula/libpq) or using a [different method](https://www.postgresql.org/download/).
     
-2. Compile the application with `gcc` or `clang`:
+2. Replace the `{libpq-install-dir}` placehorder with your libpq installation root dir and build the application with `gcc` or `clang`:
     ```bash
-    gcc sample-app.c -o sample-app \ 
-    -I/usr/local/opt/libpq/include \ 
-    -L/usr/local/opt/libpq/lib -lpq
+    gcc sample-app.c -o sample-app -I{libpq-install-dir}/libpq/include -L{libpq-install-dir}/libpq/lib -lpq
     ```
 3. Run the application:
     ```bash
@@ -81,5 +79,5 @@ Now, explore the source code of `sample-app.c`:
 
 Having issues running this application or want to learn more from Yugabyte experts?
 
-Send a note to [our Slack channel](https://join.slack.com/t/yugabyte-db/shared_invite/zt-xbd652e9-3tN0N7UG0eLpsace4t1d2A),
+Join [our Slack channel](https://communityinviter.com/apps/yugabyte-db/register),
 or raise a question on StackOverflow and tag the question with `yugabytedb`!
