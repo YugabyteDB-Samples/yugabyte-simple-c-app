@@ -43,7 +43,7 @@ Note, you can easily find all the settings on the Yugabyte Cloud dashboard:
 
 1. Install the libpq driver via [Homebrew package manager](https://formulae.brew.sh/formula/libpq) or using a [different method](https://www.postgresql.org/download/).
     
-2. Replace the `{libpq-install-dir}` placehorder with your libpq installation root dir and build the application with `gcc` or `clang`:
+2. Replace the `{libpq-install-dir}` placeholder with your libpq installation root dir and build the application with `gcc` or `clang`:
     ```bash
     gcc sample-app.c -o sample-app -I{libpq-install-dir}/libpq/include -L{libpq-install-dir}/libpq/lib -lpq
     ```
