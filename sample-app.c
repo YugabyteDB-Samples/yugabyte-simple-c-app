@@ -9,7 +9,7 @@
 #define USER "yugabyte"
 #define PASSWORD "yugabyte"
 
-// Ucomment and define the SSL settings for YugabyteDB Managed and other secured deployments
+// Uncomment and define the SSL settings for YugabyteDB Managed and other secured deployments
 // #define SSL_MODE ""
 // #define SSL_ROOT_CERT ""
 
