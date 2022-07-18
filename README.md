@@ -33,6 +33,7 @@ Locate and define the following configuration-related macros in the `sample-app.
 * `HOST` - the hostname of your instance.
 * `USER` - the username for your instance.
 * `PASSWORD` - the database password.
+* `SSL_MODE` - the SSL mode to use. YugabyteDB Managed requires SSL connections; use `verify-full`.
 * `SSL_ROOT_CERT` - a full path to your CA root cert (for example, `/Users/dmagda/certificates/root.crt`). 
 
 Note, you can easily find all the settings on the YugabyteDB Managed dashboard:
