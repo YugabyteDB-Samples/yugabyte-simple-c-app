@@ -168,7 +168,7 @@ void printErrorAndExit(PGconn *conn, PGresult *res)
         if (errCode && strcmp(errCode, "40001"))
         {
             printf("The operation is aborted due to a concurrent transaction that is modifying the same set of rows. \
-                    Consider adding retry logic for production-grade applications.\n");
+                    Consider adding retry logic or switch to the pessimistic locking.\n");
         }
 
         PQclear(res);
